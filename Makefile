@@ -21,5 +21,6 @@ tensorflow/%.pt:
 onnx: $(ONNX_TARGETS)
 
 onnx/%.onnx: tensorflow/%.pt venv/bin/activate
+	mkdir -p onnx
 	source venv/bin/activate && \
 	python export_to_onnx.py --checkpoint $< --onnx $@
