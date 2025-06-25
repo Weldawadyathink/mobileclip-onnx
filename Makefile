@@ -1,7 +1,10 @@
 BASE_URL = https://docs-assets.developer.apple.com/ml-research/datasets/mobileclip
 MODELS = mobileclip_s0.pt mobileclip_s1.pt mobileclip_s2.pt mobileclip_b.pt mobileclip_blt.pt
 
-.PHONY: install download
+ONNX_MODELS = $(MODELS:.pt=.onnx)
+ONNX_TARGETS = $(addprefix onnx/,$(ONNX_MODELS))
+
+.PHONY: install download onnx
 
 venv/bin/activate:
 	python3 -m venv venv
@@ -14,3 +17,11 @@ download: $(addprefix tensorflow/,$(MODELS))
 
 tensorflow/%.pt:
 	curl -L $(BASE_URL)/$(@F) -o $@ --create-dirs
+
+onnx: $(ONNX_TARGETS)
+
+$(ONNX_DIR)/%.onnx: tensorflow/%.pt | $(ONNX_DIR)
+	python export_to_onnx.py --checkpoint $< --onnx $@
+
+$(ONNX_DIR):
+	mkdir -p $(ONNX_DIR)
