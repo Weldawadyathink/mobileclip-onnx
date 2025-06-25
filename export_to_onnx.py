@@ -1,9 +1,7 @@
+import os
 import torch
 from mobileclip import create_model_and_transforms
 import argparse
-
-# Set these as needed
-MODEL_NAME = "mobileclip_s0"
 
 parser = argparse.ArgumentParser(description="Export MobileCLIP model to ONNX.")
 parser.add_argument('--checkpoint', type=str, required=True, help='Path to the model checkpoint (.pt file)')
@@ -14,9 +12,14 @@ CHECKPOINT_PATH = args.checkpoint
 ONNX_PATH = args.onnx
 DEVICE = "cpu"
 
+# Derive model name from checkpoint path
+model_name = os.path.splitext(os.path.basename(CHECKPOINT_PATH))[0]
+if model_name == "mobileclip_blt":
+    model_name = "mobileclip_b"
+
 # Load model
 model, _, preprocess = create_model_and_transforms(
-    model_name=MODEL_NAME,
+    model_name=model_name,
     pretrained=CHECKPOINT_PATH,
     reparameterize=True,
     device=DEVICE,
