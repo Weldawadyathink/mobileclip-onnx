@@ -20,8 +20,6 @@ tensorflow/%.pt:
 
 onnx: $(ONNX_TARGETS)
 
-$(ONNX_DIR)/%.onnx: tensorflow/%.pt | $(ONNX_DIR)
+onnx/%.onnx: tensorflow/%.pt venv/bin/activate
+	source venv/bin/activate && \
 	python export_to_onnx.py --checkpoint $< --onnx $@
-
-$(ONNX_DIR):
-	mkdir -p $(ONNX_DIR)
