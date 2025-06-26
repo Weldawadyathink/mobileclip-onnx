@@ -4,7 +4,10 @@ MODELS = mobileclip_s0.pt mobileclip_s1.pt mobileclip_s2.pt mobileclip_b.pt mobi
 ONNX_MODELS = $(MODELS:.pt=.onnx)
 ONNX_TARGETS = $(addprefix onnx/,$(ONNX_MODELS))
 
-.PHONY: install download onnx
+QUANTIZED_ONNX_MODELS = $(ONNX_MODELS:.onnx=_int8.onnx)
+QUANTIZED_ONNX_TARGETS = $(addprefix onnx/,$(QUANTIZED_ONNX_MODELS))
+
+.PHONY: install download onnx quantize
 
 venv/bin/activate:
 	python3 -m venv venv
@@ -24,3 +27,9 @@ onnx/%.onnx: tensorflow/%.pt venv/bin/activate
 	mkdir -p onnx
 	source venv/bin/activate && \
 	python export_to_onnx.py --checkpoint $< --onnx $@
+
+quantize: $(QUANTIZED_ONNX_TARGETS)
+
+onnx/%_int8.onnx: onnx/%.onnx venv/bin/activate
+	source venv/bin/activate && \
+	python quantize_onnx.py --input $< --output $@
